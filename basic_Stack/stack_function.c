@@ -99,7 +99,7 @@ int Bracket_check_getchar_stack(int ch)
 	return result;
 }
 
-Bracket_check_gets_stack(char *string)
+void Bracket_check_gets_stack(char *string)
 {
 	int idx_end = strlen(string);
 	int pop;

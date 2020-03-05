@@ -14,7 +14,7 @@ int IsEmpty();
 int Bracket_check_getchar_stack(int ch);
 /*BRACKET_CHECK_GETS*/
 int Count_stack();
-Bracket_check_gets_stack(char *string);
+void Bracket_check_gets_stack(char *string);
 /*NOTATION_CHANGER*/
 int Level_tester(int op);
 char* Notation_changer(const char *string);
