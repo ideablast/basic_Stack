@@ -3,6 +3,7 @@
 //#define BRACKET_CHECK_GET_CHAR
 //#define BRACKET_CHECK_GETS
 //#define CALCULATOR
+#define NOTATION_CHANGER
 
 Stack *top;
 
@@ -64,6 +65,20 @@ int main()
 		
 #endif
 
+#ifdef NOTATION_CHANGER
+	char* string;
+	char* print;
+	top = Add_new_stack();
+	
+	string = get_string_return_ptr();
+	print = Notation_changer(string);
+
+
+	printf("전위형 수식: %s\n", string);
+	printf("후위형 수식: %s\n", print);
+	
+
+#endif
 
 
 #ifdef CALCULATOR

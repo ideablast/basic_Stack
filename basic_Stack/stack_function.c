@@ -99,7 +99,7 @@ int Bracket_check_getchar_stack(int ch)
 	return result;
 }
 
-int Bracket_check_gets_stack(char *string)
+Bracket_check_gets_stack(char *string)
 {
 	int idx_end = strlen(string);
 	int pop;
@@ -107,8 +107,6 @@ int Bracket_check_gets_stack(char *string)
 
 	for (idx = 0; idx < idx_end; idx++)
 	{
-		string[idx];
-
 		if (string[idx] == '(' || string[idx] == '{' || string[idx] == '[')
 			Push_stack((int)string[idx]);
 
@@ -151,12 +149,97 @@ int Bracket_check_gets_stack(char *string)
 }
 
 /*중위표기->후위표기
-
+ *피연산자가 들어오면 바로 출력
+ *연산자가 들어오면 자기보다 우선 순위가 높거나 같은 것들을 빼고 자신을 스택에 담습니다.
+ *여는 괄호 '('를 만나면 무조건 스택에 담습니다.
+ *닫는 괄호 ')'를 만날때 까지 스택에서 출력합니다.
 */
-void Notation_changer()
+int Level_tester(int op)
 {
+	int level = 0;
 
+	if(op == '(')
+		level = 1;
+	else if (op == '+' || op == '-')
+		level = 2;
+	else if (op == '*' || op == '/')
+		level = 3;
+	else
+		level = FAIL;
 
+	return level;
+}
+
+char* Notation_changer(const char *string)
+{
+	int idx_end = strlen(string);
+	int pop = -1;
+	int idx = 0;
+	int level = 0;
+	char *print;
+	int print_idx = 0;
+	print = (char*)malloc((idx_end + 1) * sizeof(char));
+	memset(print, '\0', (idx_end + 1) * sizeof(char));
+
+	for (idx = 0; idx < idx_end; idx++)
+	{
+		if (string[idx] == '(')
+			Push_stack((int)string[idx]);
+		else if (string[idx] == '+' || string[idx] == '-' || string[idx] == '*' || string[idx] == '/')
+		{
+			//Level_tester(string[idx]) 스택에 넣을지 그대로 출력할지를 결정해야할 연산자
+			//Level_tester(pop) 이미 스택에 들어가있는 연산자
+			if (IsEmpty() == TRUE)
+				Push_stack(string[idx]);
+			else
+			{
+				pop = Pop_stack();
+				if (Level_tester(pop) >= Level_tester(string[idx]))
+				{
+					print[print_idx] = (char)pop;
+					print[print_idx + 1] = '\0';
+					print_idx++;
+					Push_stack(string[idx]);
+					pop = -1;//쓰고 초기화
+				}
+				else
+				{
+					Push_stack(pop);
+					Push_stack(string[idx]);
+				}
+					
+			}
+			
+		}
+		else if (string[idx] == ')')
+		{
+			pop = Pop_stack();
+			while ( pop != '(')
+			{
+				print[print_idx] = (char)pop;
+				print[print_idx + 1] = '\0';
+				print_idx++;
+				pop = Pop_stack();
+			}
+			pop = -1;
+		}
+		else//숫자나 공백 문자의 경우
+		{
+			print[print_idx] = string[idx];
+			print[print_idx + 1] = '\0';
+			print_idx++;
+		}
+	}
+
+	//스택에 남은 연산자를 끝에 붙여줌
+	idx_end = Count_stack();
+	for (idx = 0; idx < idx_end; idx++)//이 안에 함수가 들어가면 계속 실행하면서 값이 바뀌는가?
+	{
+		print[print_idx] = Pop_stack();
+		print[print_idx + 1] = '\0';
+		print_idx++;
+	}
+	return print;
 }
 void clear_buf()//버퍼 비우기
 {
