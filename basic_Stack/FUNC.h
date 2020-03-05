@@ -18,6 +18,10 @@ Bracket_check_gets_stack(char *string);
 /*NOTATION_CHANGER*/
 int Level_tester(int op);
 char* Notation_changer(const char *string);
+/*CALCULATOR*/
+int* Number_detector(char* string);
+int Calculator(const char *string);
+
 /*Simple Function*/
 char* get_string_return_ptr();
 void clear_buf();

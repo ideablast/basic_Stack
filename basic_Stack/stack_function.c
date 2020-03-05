@@ -169,7 +169,6 @@ int Level_tester(int op)
 
 	return level;
 }
-
 char* Notation_changer(const char *string)
 {
 	int idx_end = strlen(string);
@@ -241,11 +240,212 @@ char* Notation_changer(const char *string)
 	}
 	return print;
 }
+/*후위표기 식을 이용한 계산기*/
+int* Number_detector(char* string)
+{
+	char* temp;
+	int return_cnt;
+
+	int arr_cnt = 0;
+	int arr_size = 10;
+	int *arr;
+
+	arr = (int*)malloc(arr_size * sizeof(int));
+
+	top = Add_new_stack();
+
+	temp = string;
+	while (1)
+	{
+		arr[arr_cnt] = atoi(temp);//비주얼 스튜디오를 쓸떄만 될듯한 느낌
+		return_cnt = printf("%d", arr[arr_cnt]);
+		arr_cnt++;
+
+		if (arr_cnt >= arr_size)
+		{
+			arr_size += 10;
+			arr = (int*)realloc(arr, arr_size * sizeof(int));
+		}
+
+		puts("");
+		temp = temp + return_cnt;
+		while (1)
+		{
+			if (*temp == '\0')//문자열의 끝에 도달하면 
+				break;
+
+			if (!(*temp >= '0'&&*temp <= '9'))
+			{
+				if (*temp == '-')//-부호 감지 알고리즘
+				{
+					if (!(*(temp - 1) >= '0'&&*(temp - 1) <= '9'))//-부호 앞의 값이 숫자가 아니면
+						break;
+					else
+						temp++;
+				}
+				else
+					temp++;
+			}
+			else
+				break;
+		}
+		if (*temp == '\0')
+			break;
+	}
+	arr = (int*)realloc(arr, arr_cnt * sizeof(int));
+
+	return arr;
+}
+int Calculator(const char *string)
+{
+	int idx_end = strlen(string);
+	int pop = FAIL;
+	int change_flag = FALSE;
+	int idx = 0;
+	char *print;
+	int print_idx = 0;
+	int op_A, op_B;
+	print = (char*)malloc((idx_end + 1) * sizeof(char));
+	memset(print, '\0', (idx_end + 1) * sizeof(char));
+
+	for (idx = 0; idx < idx_end; idx++)
+	{
+		if (string[idx] == '\'')
+		{
+			idx++;
+			while ((string[idx] >= '0'&&string[idx] <= '9') || string[idx] == '-')
+			{
+				print[print_idx] = string[idx];
+				print[print_idx + 1] = '\0';
+				print_idx++;
+				idx++;
+			}
+			Push_stack(atoi(print));
+			memset(print, '\0', (idx_end + 1) * sizeof(char));
+			print_idx = 0;
+		}
+		else if ((string[idx] >= '0'&&string[idx] <= '9'))
+		{
+			print[print_idx] = string[idx];
+			print[print_idx + 1] = '\0';
+			print_idx++;
+			Push_stack(atoi(print));
+			memset(print, '\0', (idx_end + 1) * sizeof(char));
+			print_idx = 0;
+		}
+		else //if (string[idx] == '+' || string[idx] == '-' || string[idx] == '*' || string[idx] == '/')
+		{
+			switch (string[idx])
+			{
+			case '+':
+				op_A = Pop_stack();
+				op_B = Pop_stack();
+				Push_stack(op_B + op_A);
+				break;
+			case '-':
+				op_A = Pop_stack();
+				op_B = Pop_stack();
+				Push_stack(op_B - op_A);
+				break;
+			case '*':
+				op_A = Pop_stack();
+				op_B = Pop_stack();
+				Push_stack(op_B * op_A);
+				break;
+			case '/':
+				op_A = Pop_stack();
+				op_B = Pop_stack();
+				Push_stack(op_B / op_A);
+				break;
+			}
+		}
+		
+	}
+
+	return Pop_stack();
+}
+
+#ifdef NOTYET
+double CALCULAROT(const char* string)
+{
+	int idx_end = strlen(string);
+	int pop = -1;
+	int idx = 0;
+	int level = 0;
+	char *print;
+	int print_idx = 0;
+	print = (char*)malloc((idx_end + 1) * sizeof(char));
+	memset(print, '\0', (idx_end + 1) * sizeof(char));
+
+	for (idx = 0; idx < idx_end; idx++)
+	{
+		if (string[idx] == '(')
+			Push_stack((int)string[idx]);
+		else if (string[idx] == '+' || string[idx] == '-' || string[idx] == '*' || string[idx] == '/')
+		{
+			//Level_tester(string[idx]) 스택에 넣을지 그대로 출력할지를 결정해야할 연산자
+			//Level_tester(pop) 이미 스택에 들어가있는 연산자
+			if (IsEmpty() == TRUE)
+				Push_stack(string[idx]);
+			else
+			{
+				pop = Pop_stack();
+				if (Level_tester(pop) >= Level_tester(string[idx]))
+				{
+					print[print_idx] = (char)pop;
+					print[print_idx + 1] = '\0';
+					print_idx++;
+					Push_stack(string[idx]);
+					pop = -1;//쓰고 초기화
+				}
+				else
+				{
+					Push_stack(pop);
+					Push_stack(string[idx]);
+				}
+
+			}
+
+		}
+		else if (string[idx] == ')')
+		{
+			pop = Pop_stack();
+			while (pop != '(')
+			{
+				print[print_idx] = (char)pop;
+				print[print_idx + 1] = '\0';
+				print_idx++;
+				pop = Pop_stack();
+			}
+			pop = -1;
+		}
+		else//숫자나 공백 문자의 경우
+		{
+			print[print_idx] = string[idx];
+			print[print_idx + 1] = '\0';
+			print_idx++;
+		}
+	}
+
+	//스택에 남은 연산자를 끝에 붙여줌
+	idx_end = Count_stack();
+	for (idx = 0; idx < idx_end; idx++)//이 안에 함수가 들어가면 계속 실행하면서 값이 바뀌는가?
+	{
+		print[print_idx] = Pop_stack();
+		print[print_idx + 1] = '\0';
+		print_idx++;
+	}
+	return print;
+
+}
+#endif
+
+
+
 void clear_buf()//버퍼 비우기
 {
 	while (getchar() != '\n');
 }
-
 char* get_string_return_ptr()//문자열의 길이에 따라서 능동적으로 배열의 할당 메모리를 조절하여 입력받는 함수
 {
 	//이 방식이 좀더 안정적일것 같은 느낌적인 느낌?
